@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<script>
+
+    /**
+    
+        ?params={
+            "cards": [
+                {
+                    "name": "Aggressive Melee",
+                    "details": [
+                        "Attack (If base contact)",
+                        "Move towards nearest enemy"
+                    ]
+                },
+                {
+                    "name": "Aggressive Charge",
+                    "details": [
+                        "Attack (If base contact)",
+                        "Move towards nearest enemy",
+                        "Charge (If turn 1)"
+                    ]
+                },
+                {
+                    "name": "Aggressive Shoot",
+                    "details": [
+                        "Shoot at nearest (If in range)",
+                        "Move towards nearest enemy"
+                    ]
+                },
+                {
+                    "name": "Aggressive Aim",
+                    "details": [
+                        "Shoot at nearest (If in range)",
+                        "Move towards nearest enemy",
+                        "Aim and Shoot at nearest (If turn 1 and can aim)"
+                    ]
+                },
+                {
+                    "name": "High Ground",
+                    "details": [
+                        "Move toward higher ground"
+                    ]
+                },
+                {
+                    "name": "Higher Ground",
+                    "details": [
+                        "Move toward higher ground",
+                        "Shoot at nearest (if turn 2)"
+                    ]
+                },
+                {
+                    "name": "Cover Melee",
+                    "details": [
+                        "Attack (If base contact)",
+                        "Move toward nearest cover"
+                    ]
+                },
+                {
+                    "name": "Cover Shoot",
+                    "details": [
+                        "Shoot at nearest (If in range)",
+                        "Move toward nearest cover (Except in cover)",
+                        "Aim and Shoot at nearest (if turn 1 and can aim)"
+                    ]
+                },
+                {
+                    "name": "Retreat Full",
+                    "details": [
+                        "Retreat (If base contact)"
+                    ]
+                },
+                {
+                    "name": "Retreat Studied",
+                    "details": [
+                        "Attack (If base contact)",
+                        "Retreat (If base contact)",
+                        "(and weaker the combined woudns of characters in base contact)"
+                    ]
+                }
+            ],
+            "deckBuildingDetails": {
+                "cards": {
+                    "Aggressive Melee": {
+                        "percent_in_deck": 0.25,
+                        "color": "rgb(140, 167, 255)"
+                    },
+                    "Aggressive Charge": {
+                        "percent_in_deck": 0.15,
+                        "color": "rgb(140, 167, 35)"
+                    },
+                    "Aggressive Shoot": {
+                        "percent_in_deck": 0.15,
+                        "color": "rgb(100, 167, 35)"
+                    },
+                    "Aggressive Aim": {
+                        "percent_in_deck": 0.15,
+                        "color": "rgb(100, 167, 35)"
+                    },
+                    "High Ground": {
+                        "percent_in_deck": 0.05,
+                        "color": "rgb(100, 100, 35)"
+                    },
+                    "Higher Ground": {
+                        "percent_in_deck": 0.05,
+                        "color": "rgb(100, 100, 100)"
+                    },
+                    "Cover Melee": {
+                        "percent_in_deck": 0.05,
+                        "color": "rgb(150, 100, 100)"
+                    },
+                    "Cover Shoot": {
+                        "percent_in_deck": 0.05,
+                        "color": "rgb(150, 150, 100)"
+                    },
+                    "Retreat Full": {
+                        "percent_in_deck": 0.05,
+                        "color": "rgb(150, 25, 100)"
+                    },
+                    "Retreat Studied": {
+                        "percent_in_deck": 0.05,
+                        "color": "rgb(100, 150, 25)"
+                    }
+                },
+                "total_cards_in_deck": 40
+            }
+        }  
+
+    */
+
+    
+
+    const {
+        host, hostname, href, origin, pathname, port, protocol, search
+    } = window.location
+
+    const deck = {
+        cards:[],
+        currentIterator: 0
+    }
+
+    function generateCardsOfType(card, cardDeckBuildingDetails, totalCardsInDec) {
+        let percentInDeck = cardDeckBuildingDetails['percent_in_deck'];
+        let color = cardDeckBuildingDetails['color'];
+        let totalCardsOfThisType = Math.floor(percentInDeck * totalCardsInDec);
+
+        for(let i = 0; i < totalCardsOfThisType; i++) {
+            let newCard = {};
+            newCard['name'] = card['name'];
+            newCard['details'] = card['details'];
+            newCard['color'] = color;
+
+            deck.cards.push(newCard);
+        }
+        
+    }
+
+    function generateDeck(jsonObject) {
+        // iterate over cards array in the jsonObject
+        for(let i = 0; i < jsonObject['cards'].length; i++) {
+            let name = jsonObject['cards'][i].name;
+            if(name in jsonObject['deckBuildingDetails']['cards']) {
+            
+                generateCardsOfType(
+                    jsonObject['cards'][i],
+                    jsonObject['deckBuildingDetails']['cards'][name],
+                    jsonObject['deckBuildingDetails']['total_cards_in_deck'],
+                );
+            }
+            else {
+                throw name + " doesn't exist in the deckBuildingDetails, but you reference it has a valid card.";
+            }
+        }
+    }
+
+    function getURLJson(searchString) {
+        let queryParams = searchString.replace('?', '');
+        const searchParams = new URLSearchParams(queryParams);
+        return JSON.parse(searchParams.get('params'));
+    }
+
+    function shuffleDeck() {
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        shuffleArray(deck.cards);
+    }
+
+    function registerAllCardClicks() {
+        let domCards = document.querySelectorAll('#card_container .card');
+        
+        for(let i = 0; i < domCards.length; i++) {
+            let card = domCards[i];
+            card.onclick = function() {
+                document.getElementById('card_id_'+i).style.display = 'none';
+                
+                deck.currentIterator += 1;
+
+                if(deck.currentIterator < deck.cards.length) {
+                    document.getElementById('card_id_'+(i+1)).style.display = 'block';
+                }
+                
+            }
+        }
+    }
+
+    function displayDeck() {
+        let template = document.getElementById('card_template').innerHTML;
+
+        for(let i = 0; i < deck.cards.length; i++) {
+            let cardHTML = template;
+            cardHTML = cardHTML.replace('{card_id}', 'id="card_id_' + i + '"');
+            cardHTML = cardHTML.replace('{card_style}', 'style="background-color:' + deck.cards[i].color + '"')
+            cardHTML = cardHTML.replace('{card_name}', deck.cards[i].name);
+            cardHTML = cardHTML.replace('{card_counter}', i+1);
+            
+            let cardDetails = "";
+            for(let j = 0; j < deck.cards[i].details.length; j++) {
+                cardDetails += '<li>' + deck.cards[i].details[j] + '</li>';
+            }
+            cardHTML = cardHTML.replace('{card_details}', "<ul>" + cardDetails + "</ul>");
+            
+            document.getElementById('card_container').innerHTML += cardHTML;
+        }
+    }
+
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+        let gameJson = getURLJson(search);
+        generateDeck(gameJson);
+        shuffleDeck();
+        displayDeck();
+
+        registerAllCardClicks();
+
+        let topOfDeck = document.getElementById('top_of_deck');
+        topOfDeck.onclick = function() {
+            topOfDeck.style.display = 'none';
+            document.getElementById('card_id_0').style.display = 'block';
+        }
+    });
+</script>
+
+<style>
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #333;
+    }
+
+    #card_template {
+        display:none;
+    }
+
+    #top_of_deck {
+        background-color: rgb(38, 155, 8);
+        display:block;
+    }
+
+    .card {
+        display:none;
+        margin: auto;
+        height: 400px;
+        width: 300px;
+        padding: 10px 5px;
+        border-radius: 10px;
+        border: 3px solid #fff;
+    }
+    
+    .card_counter {
+        float: right;
+    }
+
+    .card h2 {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+</head>
+
+<body>
+    <div id="card_template">
+        <div class="card" {card_style} {card_id}>
+            <div class="card_counter">{card_counter}</div>
+            <h2 class="card_name">{card_name}</h2>
+            <div class="card_details">{card_details}</div>
+        </div>
+    </div>
+
+    <div id="top_of_deck" class="card">
+        Click to Start
+    </div>
+
+    <div id="card_container">
+
+    </div>
+
+
+
+
+</body>
+
+
+</html>
