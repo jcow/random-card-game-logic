@@ -4,7 +4,7 @@ Card game logic for a Warhammer game
 
 ## How to use
 
-Modify the JSON object in the `index.html` file and add it to the query params of the URL. 
+Modify the JSON object in the `template.json` file and add it to the query params of the URL. 
 
 Example:
 
