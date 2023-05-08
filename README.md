@@ -14,3 +14,42 @@ Modify the JSON in the `template.json` file to get something you like and then c
 
 
 You'll then have a shuffled deck based on the parameters sent in the `params` query param in the url.
+
+
+## Dev Details
+
+### Adding a card
+To add a new card to the mix, simply add to two areas. 
+
+```
+"cards": [
+        {
+            "name": "New Card Name",
+            "details": [
+                "I am a new card",
+                "I do stuff"
+            ]
+        },
+        ...
+]
+```
+
+and 
+
+```
+"deckBuildingDetails": {
+        "cards": {
+            "New Card Name": {
+                "percent_in_deck": 0.25,
+                "color": "rgb(140, 167, 255)"
+            },
+        }
+}
+```
+
+the "name" of the two places have to match - aka "New Card Name" in both. 
+
+### Do's and Dont's of adding a new card. 
+
+Only stick with A-Z and 0-9 chars for the template. Other characters are reserved words in the url - like `&` and `?` and much much more. If you add a char like this the url will get angry and the game will break.
+
