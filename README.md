@@ -51,5 +51,5 @@ the "name" of the two places have to match - aka "New Card Name" in both.
 
 ### Do's and Dont's of adding a new card. 
 
-Only stick with A-Z and 0-9 chars for the template. Other characters are reserved words in the url - like `&` and `?` and much much more. If you add a char like this the url will get angry and the game will break.
+Only stick with A-Z and 0-9 chars for the template. Other characters are reserved words in the url - like `&` and `?` and much much more will break the url and the game.
 
