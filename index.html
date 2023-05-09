@@ -6,6 +6,17 @@
 
 <script>
 
+
+    const gameConsole = {
+
+        log: function (line) {
+            const d = document.createElement("div");
+            d.innerHTML = line;
+            document.getElementById('game_console').prepend(d);
+        }
+
+    }
+
     
 
     const {
@@ -67,58 +78,99 @@
         shuffleArray(deck.cards);
     }
 
-    function registerAllCardClicks() {
-        let domCards = document.querySelectorAll('#card_container .card');
-        
-        for(let i = 0; i < domCards.length; i++) {
-            let card = domCards[i];
-            card.onclick = function() {
-                document.getElementById('card_id_'+i).style.display = 'none';
-                
-                deck.currentIterator += 1;
+    function renderCardAtIndex(i) {
 
-                if(deck.currentIterator < deck.cards.length) {
-                    document.getElementById('card_id_'+(i+1)).style.display = 'block';
-                }
-                
-            }
-        }
-    }
+        gameConsole.log("Rendering card at index: " + i);
 
-    function displayDeck() {
         let template = document.getElementById('card_template').innerHTML;
 
-        for(let i = 0; i < deck.cards.length; i++) {
-            let cardHTML = template;
-            cardHTML = cardHTML.replace('{card_id}', 'id="card_id_' + i + '"');
-            cardHTML = cardHTML.replace('{card_style}', 'style="background-color:' + deck.cards[i].color + '"')
-            cardHTML = cardHTML.replace('{card_name}', deck.cards[i].name);
-            cardHTML = cardHTML.replace('{card_counter}', i+1);
-            
-            let cardDetails = "";
-            for(let j = 0; j < deck.cards[i].details.length; j++) {
-                cardDetails += '<li>' + deck.cards[i].details[j] + '</li>';
-            }
-            cardHTML = cardHTML.replace('{card_details}', "<ul>" + cardDetails + "</ul>");
-            
-            document.getElementById('card_container').innerHTML += cardHTML;
+        let cardHTML = template;
+        cardHTML = cardHTML.replace('{card_id}', 'id="card_id_' + i + '"');
+        cardHTML = cardHTML.replace('{card_style}', 'style="background-color:' + deck.cards[i].color + '"')
+        cardHTML = cardHTML.replace('{card_name}', deck.cards[i].name);
+        cardHTML = cardHTML.replace('{card_counter}', i+1);
+        
+        let cardDetails = "";
+        for(let j = 0; j < deck.cards[i].details.length; j++) {
+            cardDetails += '<li>' + deck.cards[i].details[j] + '</li>';
         }
+        cardHTML = cardHTML.replace('{card_details}', "<ul>" + cardDetails + "</ul>");
+        
+        document.getElementById('card_container').innerHTML = cardHTML;
     }
 
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function buttonClickNextCard() {
+
+        // at end of deck, do nothing
+        if(deck.cards.length-1 == deck.currentIterator) {
+            return;
+        }
+
+        deck.currentIterator += 1;
+        renderCardAtIndex(deck.currentIterator);
+    }
+
+    /**
+     * Function to find the back 1/2 of the deck and to insert this card into that back half
+     */
+    function buttonClickShuffleBackIntoDeck() {
+        // if we just have 2 cards left, then do nothing
+        if(deck.cards.length - deck.currentIterator+1 <= 2) {
+            return;
+        }        
+
+        // otherwise, find the min max of the back half, pick a random index from that range
+        // min is the start of the back half of where we are in the deck
+        const min = deck.cards.length-1 - Math.floor((deck.cards.length - deck.currentIterator) / 2); 
+        const max = deck.cards.length-1;
+
+        const newCardIndex = getRandomInt(min, max);
+
+        const currentCard = deck.cards[deck.currentIterator];
+
+        // copy the card to the new position
+        deck.cards.splice(newCardIndex, 0, currentCard);
+
+        // delete the card at its original position
+        deck.cards.splice(deck.currentIterator, 1);
+
+        gameConsole.log("Shuffled from: " + deck.currentIterator + " to: " + newCardIndex);
+
+        renderCardAtIndex(deck.currentIterator);
+    }
+
+    function registerControlButtons() {
+        document.getElementById('shuffle_back_into_deck').onclick = function() {
+            buttonClickShuffleBackIntoDeck();
+        }
+
+        document.getElementById('next_card').onclick = function() {
+            buttonClickNextCard();
+        }
+
+        document.getElementById('game_console_display').onclick = function() {
+            if(document.getElementById('game_console').style.display == "" || document.getElementById('game_console').style.display == "none") {
+                document.getElementById('game_console').style.display = "block";
+            }
+            else {
+                document.getElementById('game_console').style.display = "none";
+            }
+        }
+        
+    }
 
     window.addEventListener('DOMContentLoaded', (event) => {
         let gameJson = getURLJson(search);
         generateDeck(gameJson);
         shuffleDeck();
-        displayDeck();
-
-        registerAllCardClicks();
-
-        let topOfDeck = document.getElementById('top_of_deck');
-        topOfDeck.onclick = function() {
-            topOfDeck.style.display = 'none';
-            document.getElementById('card_id_0').style.display = 'block';
-        }
+        registerControlButtons();
+        renderCardAtIndex(deck.currentIterator);
     });
 </script>
 
@@ -133,17 +185,11 @@
         display:none;
     }
 
-    #top_of_deck {
-        background-color: rgb(38, 155, 8);
-        display:block;
-    }
-
     .card {
-        display:none;
-        margin: auto;
+        margin: 20px auto;
         height: 400px;
         width: 300px;
-        padding: 10px 5px;
+        padding: 10px;
         border-radius: 10px;
         border: 3px solid #fff;
     }
@@ -156,6 +202,37 @@
         margin: 0;
         padding: 0;
     }
+
+    #button_container {
+        width: 300px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    #button_container button {
+        height: 40px;
+    }
+
+    #game_console {
+        width: 300px;
+        height: 300px;
+        overflow-y: auto;
+        margin: 10px auto;
+        display: none;
+        border: 3px solid #fff;
+        background-color: #222;
+        color: #ccc;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    #console_display_container {
+        width: 300px;
+        margin: 10px auto; 
+    }
+
 </style>
 
 </head>
@@ -169,14 +246,21 @@
         </div>
     </div>
 
-    <div id="top_of_deck" class="card">
-        Click to Start
-    </div>
-
     <div id="card_container">
 
     </div>
 
+
+    <div id="button_container">
+        <button id="shuffle_back_into_deck">Shuffle Back In</button>
+        <button id="next_card">Next Card</button>
+    </div>
+
+    <div id="console_display_container">
+        <button id="game_console_display">Console (+/-)</button>
+    </div>
+    
+    <div id="game_console"></div>
 
 
 
