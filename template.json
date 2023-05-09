@@ -3,14 +3,14 @@
         {
             "name": "Aggressive Melee",
             "details": [
-                "Attack (If base contact)",
+                "Attack",
                 "Move towards nearest enemy"
             ]
         },
         {
             "name": "Aggressive Charge",
             "details": [
-                "Attack (If base contact)",
+                "Attack",
                 "Move towards nearest enemy",
                 "Charge (If turn 1)"
             ]
@@ -18,14 +18,16 @@
         {
             "name": "Aggressive Shoot",
             "details": [
-                "Shoot at nearest (If in range)",
+                "Attack",
+                "Shoot at nearest",
                 "Move towards nearest enemy"
             ]
         },
         {
             "name": "Aggressive Aim",
             "details": [
-                "Shoot at nearest (If in range)",
+                "Attack",
+                "Shoot at nearest",
                 "Move towards nearest enemy",
                 "Aim and Shoot at nearest (If turn 1 and can aim)"
             ]
@@ -33,27 +35,32 @@
         {
             "name": "High Ground",
             "details": [
-                "Move toward higher ground"
+                "Attack"
+                "Move toward higher ground",
+                "Move towards nearest cover"
             ]
         },
         {
             "name": "Higher Ground",
             "details": [
+                "Attack",
                 "Move toward higher ground",
+                "Move towards nearest cover",
                 "Shoot at nearest (if turn 2)"
             ]
         },
         {
             "name": "Cover Melee",
             "details": [
-                "Attack (If base contact)",
+                "Attack",
                 "Move toward nearest cover"
             ]
         },
         {
             "name": "Cover Shoot",
             "details": [
-                "Shoot at nearest (If in range)",
+                "Attack",
+                "Shoot at nearest",
                 "Move toward nearest cover (Except in cover)",
                 "Aim and Shoot at nearest (if turn 1 and can aim)"
             ]
@@ -61,15 +68,16 @@
         {
             "name": "Retreat Full",
             "details": [
-                "Retreat (If base contact)"
+                "Retreat (If base contact)",
+                "Move toward nearest cover (Exept in cover)"
             ]
         },
         {
             "name": "Retreat Studied",
             "details": [
-                "Attack (If base contact)",
-                "Retreat (If base contact)",
-                "(and weaker the combined woudns of characters in base contact)"
+                "Retreat if weaker the combined woudns of characters in base contact",
+                "Attack",
+                "Move toward nearest cover (Exept in cover)"
             ]
         }
     ],
@@ -114,6 +122,10 @@
             "Retreat Studied": {
                 "percent_in_deck": 0.05,
                 "color": "rgb(100, 150, 25)"
+            },
+	       "Jazz Hands": {
+                "percent_in_deck": 0.00,
+                "color": "rgb(145, 150, 85)"
             }
         },
         "total_cards_in_deck": 40
